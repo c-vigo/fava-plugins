@@ -20,6 +20,7 @@ setup(
     include_package_data=True,
     install_requires=[
         'beancount>=2.0rc1',
+        'fava>=1.19',
     ],
     zip_safe=False,
     classifiers=[
