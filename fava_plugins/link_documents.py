@@ -19,7 +19,7 @@ from beancount.core.data import Entries
 from beancount.core.data import Transaction
 
 from fava.core import FavaLedger
-from fava.core.accounts import get_entry_accounts
+from fava.beans.account import get_entry_accounts
 from fava.helpers import BeancountError
 from fava.util.sets import add_to_set
 
