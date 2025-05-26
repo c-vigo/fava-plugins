@@ -50,31 +50,41 @@ into
         Income:Net:Bonus               100.00 EUR
 """
 
+from __future__ import annotations
+
 import ast
 import collections
 import copy
 import re
+from decimal import Decimal
+from typing import Any
+from typing import TYPE_CHECKING
 
 from beancount.core import convert
 from beancount.core import data
 from beancount.core import getters
 from beancount.core.inventory import Inventory
-from beancount.core.number import Decimal
-from beancount.core.number import ZERO
+
+if TYPE_CHECKING:
+    from beancount.core.data import Directive
 
 __plugins__ = ("split_income",)
 
 SplitIncomeError = collections.namedtuple(
-    "SplitIncomeError", "source message entry"
+    "SplitIncomeError",
+    "source message entry",
 )
 
+ZERO = Decimal()
 
-def split_income(entries, options_map, config_str):
+
+def split_income(
+    entries: list[Directive], options_map: Any, config_str: str
+) -> tuple[list[Directive], list[SplitIncomeError]]:
     """Split income transactions."""
-    # pylint: disable=too-many-locals
 
     errors = []
-    new_entries = []
+    new_entries: list[Directive] = []
     new_accounts = set()
     config = {
         "income": options_map["name_income"],
@@ -93,7 +103,7 @@ def split_income(entries, options_map, config_str):
                     data.new_metadata(options_map["filename"], 0),
                     f"Syntax error in config: {config_str}",
                     None,
-                )
+                ),
             )
             return entries, errors
 
@@ -111,10 +121,10 @@ def split_income(entries, options_map, config_str):
         )
         new_entries.append(new_entry)
 
-        income = collections.defaultdict(Inventory)
-        taxes = collections.defaultdict(Decimal)
+        income: dict[str, Inventory] = collections.defaultdict(Inventory)
+        taxes: dict[str, Decimal] = collections.defaultdict(Decimal)
         for posting in list(entry.postings):
-            weight = convert.get_weight(posting)
+            weight = convert.get_weight(posting)  # type: ignore[no-untyped-call]
             if posting.account.startswith(config["income"]):
                 new_entry.postings.append(posting)
                 entry.postings.remove(posting)
@@ -135,7 +145,7 @@ def split_income(entries, options_map, config_str):
                         data.new_metadata("<split_income>", 0),
                         entry.date,
                         net_account,
-                        None,
+                        [],
                         None,
                     )
                 )

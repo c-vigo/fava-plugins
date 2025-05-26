@@ -1,7 +1,14 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from fava_plugins.todo_as_error import TodoError
 
+if TYPE_CHECKING:
+    from .conftest import LoaderResult
 
-def test_todo_as_error(load_doc):
+
+def test_todo_as_error(load_doc: LoaderResult) -> None:
     """
     plugin "fava_plugins.todo_as_error"
     plugin "beancount.plugins.auto_accounts"
@@ -14,5 +21,6 @@ def test_todo_as_error(load_doc):
     _, errors, __ = load_doc
 
     assert len(errors) == 1
-    assert isinstance(errors[0], TodoError)
-    assert errors[0].message == "This will become an error"
+    error = errors[0]
+    assert isinstance(error, TodoError)
+    assert error.message == "This will become an error"  # type: ignore[attr-defined]
