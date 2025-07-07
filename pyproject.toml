@@ -3,8 +3,8 @@ name = "fava-plugins"
 version = "1.0"
 description = "A collection of Beancount plugins."
 readme = "README.md"
-requires-python = ">=3.9"
-license = {text = "MIT License"}
+requires-python = ">=3.10"
+license = "MIT"
 authors = [
   {name = "Jakob Schnitzer", email = "mail@jakobschnitzer.de"}
 ]
@@ -15,10 +15,8 @@ classifiers = [
     "Intended Audience :: End Users/Desktop",
     "Intended Audience :: Financial and Insurance Industry",
     "Intended Audience :: Information Technology",
-    "License :: OSI Approved :: MIT License",
     "Natural Language :: English",
     "Programming Language :: Python :: 3 :: Only",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
@@ -39,6 +37,49 @@ Issues = "https://github.com/beancount/fava-plugins/issues"
 requires = ["setuptools>=45", "wheel"]
 build-backend = "setuptools.build_meta"
 
+[dependency-groups]
+# Type-checking with mypy.
+mypy = [
+    "mypy>=1.14",
+    "pytest>=8",
+]
+# Running pre-commit hooks.
+pre-commit = [
+    "pre-commit>=4",
+]
+# Dependencies for tests.
+test = [
+    "pytest>=8",
+]
+# Stuff for the dev environment.
+dev = [
+    { include-group = "mypy" },
+    { include-group = "pre-commit" },
+    { include-group = "test" },
+    "ruff>=0.11",
+]
+
+[tool.mypy]
+strict = true
+files = [
+    "fava_plugins",
+    "tests",
+]
+
 [tool.ruff]
-target-version = "py39"
 line-length = 79
+
+[tool.ruff.lint]
+extend-select = [
+    "I",
+    "TC",
+]
+
+[tool.ruff.lint.flake8-type-checking]
+strict = true
+
+[tool.ruff.lint.isort]
+force-single-line = true
+order-by-type = false
+known-first-party = ["fava_plugins"]
+required-imports = ["from __future__ import annotations"]

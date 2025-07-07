@@ -1,16 +1,30 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from beancount.core import data
+from beancount.core.data import Transaction
 from beancount.loader import load_string
 
+if TYPE_CHECKING:
+    from beancount.core.data import Directive
 
-def _compare_postings(entry1, entry2):
+    from .conftest import LoaderResult
+
+
+def _compare_postings(entry1: Directive, entry2: Directive) -> None:
+    assert isinstance(entry1, Transaction)
+    assert isinstance(entry2, Transaction)
     amounts = {}
     for pos in entry1.postings:
+        assert pos.units
         amounts[pos.account] = pos.units.number
     for pos in entry2.postings:
+        assert pos.units
         assert amounts[pos.account] == pos.units.number
 
 
-def test_split_income(load_doc):
+def test_split_income(load_doc: LoaderResult) -> None:
     """
     plugin "fava_plugins.split_income" ""
     plugin "beancount.plugins.auto_accounts"
@@ -44,6 +58,7 @@ def test_split_income(load_doc):
     )
 
     assert not errors
+    assert isinstance(entries[8], Transaction)
     assert "pretax" in entries[8].tags
 
     _compare_postings(entries[8], entries_after[1])
@@ -53,7 +68,7 @@ def test_split_income(load_doc):
     assert len([e for e in entries if isinstance(e, data.Open)]) == 7
 
 
-def test_split_income_config(load_doc):
+def test_split_income_config(load_doc: LoaderResult) -> None:
     """
     plugin "fava_plugins.split_income" "{
         'income': 'Income:Work',
@@ -92,6 +107,7 @@ def test_split_income_config(load_doc):
     )
 
     assert not errors
+    assert isinstance(entries[8], Transaction)
     assert "brutto" in entries[8].tags
 
     _compare_postings(entries[8], entries_after[1])
@@ -101,7 +117,7 @@ def test_split_income_config(load_doc):
     assert len([e for e in entries if isinstance(e, data.Open)]) == 7
 
 
-def test_split_income_mixed_currency_income(load_doc):
+def test_split_income_mixed_currency_income(load_doc: LoaderResult) -> None:
     """
     plugin "fava_plugins.split_income" ""
     plugin "beancount.plugins.auto_accounts"
@@ -129,6 +145,7 @@ def test_split_income_mixed_currency_income(load_doc):
     )
 
     assert not errors
+    assert isinstance(entries[5], Transaction)
     assert "pretax" in entries[5].tags
 
     _compare_postings(entries[5], entries_after[1])
@@ -138,7 +155,7 @@ def test_split_income_mixed_currency_income(load_doc):
     assert len([e for e in entries if isinstance(e, data.Open)]) == 4
 
 
-def test_split_income_mixed_currency_others(load_doc):
+def test_split_income_mixed_currency_others(load_doc: LoaderResult) -> None:
     """
     plugin "fava_plugins.split_income" ""
     plugin "beancount.plugins.auto_accounts"
@@ -166,6 +183,7 @@ def test_split_income_mixed_currency_others(load_doc):
     )
 
     assert not errors
+    assert isinstance(entries[5], Transaction)
     assert "pretax" in entries[5].tags
 
     _compare_postings(entries[5], entries_after[1])
